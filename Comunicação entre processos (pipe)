@@ -1,0 +1,36 @@
+nano pipe_example.py
+
+# pipe_example.py
+# Comunicação entre processos (pipe)
+# Usamos os.pipe(), os.write() e os.read()
+# Executar com: python3 pipe_example.py
+
+import os
+
+# Cria o pipe: r = leitura, w = escrita
+r, w = os.pipe()
+
+pid = os.fork()
+
+if pid == 0:
+    # ---- Código do processo FILHO ----
+    os.close(r)  # o filho não lê
+
+    msg = b"Mensagem do filho!"
+    os.write(w, msg)  # escreve no pipe
+    os.close(w)
+
+    os._exit(0)
+
+else:
+    # ---- Código do processo PAI ----
+    os.close(w)  # o pai não escreve
+
+    buffer = os.read(r, 50)  # lê até 50 bytes
+    print("Pai recebeu:", buffer.decode())
+
+    os.close(r)
+
+python3 pipe_example.py
+#Pai recebeu: Mensagem do filho!
+
